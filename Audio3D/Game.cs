@@ -184,23 +184,44 @@ namespace Audio3D
             if (currentKeyboardState.IsKeyDown(Keys.Right))
                 turn -= turnSpeed;
 
-            cameraForward = Vector3.TransformNormal(cameraForward,
-                                                    Matrix.CreateRotationY(turn));
-            Vector3 cameraRight = Vector3.Cross(cameraForward, cameraUp);
-            cameraUp = Vector3.Cross(cameraRight, cameraForward);
+            if (turn != 0f)
+            {
+                cameraForward = Vector3.TransformNormal(cameraForward, Matrix.CreateRotationY(turn));
+                Vector3 cameraRight = Vector3.Normalize(Vector3.Cross(cameraForward, cameraUp));
+                cameraUp = Vector3.Normalize(Vector3.Cross(cameraRight, cameraForward));
+            }
 
-            // Turn up or down.
-            float turnUpDown = -currentGamePadState.ThumbSticks.Right.X * turnSpeed;
+            // Roll left or right
+            float rollLeftRight = currentGamePadState.ThumbSticks.Right.X * turnSpeed;
 
             if (currentKeyboardState.IsKeyDown(Keys.A))
-                turnUpDown += turnSpeed;
+                rollLeftRight -= turnSpeed;
 
             if (currentKeyboardState.IsKeyDown(Keys.D))
-                turnUpDown -= turnSpeed;
+                rollLeftRight += turnSpeed;
 
-            Matrix orientation = Matrix.CreateWorld(Vector3.Zero, cameraForward, cameraUp);
-            cameraUp = Vector3.TransformNormal(cameraUp,
-                                                    Matrix.Transpose(orientation) * Matrix.CreateRotationZ(turnUpDown) * orientation);
+            if (rollLeftRight != 0f)
+            {
+                cameraUp = Vector3.TransformNormal(cameraUp, Matrix.CreateFromAxisAngle(cameraForward, rollLeftRight));
+                Vector3 cameraRight = Vector3.Normalize(Vector3.Cross(cameraForward, cameraUp));
+                cameraForward = Vector3.Normalize(Vector3.Cross(cameraUp, cameraRight));
+            }
+
+            // Roll up or down
+            float rollUpDown = currentGamePadState.ThumbSticks.Right.Y * turnSpeed;
+
+            if (currentKeyboardState.IsKeyDown(Keys.W))
+                rollUpDown += turnSpeed;
+
+            if (currentKeyboardState.IsKeyDown(Keys.S))
+                rollUpDown -= turnSpeed;
+
+            if (rollUpDown != 0f)
+            {
+                Vector3 cameraRight = Vector3.Normalize(Vector3.Cross(cameraForward, cameraUp));
+                cameraUp = Vector3.TransformNormal(cameraUp, Matrix.CreateFromAxisAngle(cameraRight, rollUpDown));
+                cameraForward = Vector3.Normalize(Vector3.Cross(cameraUp, cameraRight));
+            }
 
             // Accelerate forward or backward.
             float accel = currentGamePadState.ThumbSticks.Left.Y * accelerationSpeed;
