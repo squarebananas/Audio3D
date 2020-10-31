@@ -35,6 +35,11 @@ namespace Audio3D
         public bool toneTestActive;
         SoundEffectInstance toneTestSound = null;
 
+        // Relative Velocity Test
+        public bool relativeVelocityTestActive;
+        public Vector3 relativeVelocityTestCameraPosition;
+        public Matrix relativeVelocityTestCameraMatrix;
+
         #endregion
 
 
@@ -52,6 +57,9 @@ namespace Audio3D
             float dz = (float)-Math.Sin(time);
 
             Vector3 newPosition = new Vector3(dx, 0, dz) * 6000;
+
+            if (relativeVelocityTestActive == true)
+                newPosition = relativeVelocityTestCameraPosition + Vector3.Transform(new Vector3(0, 0, -6000), relativeVelocityTestCameraMatrix);
 
             // Update entity position and velocity.
             Velocity = newPosition - Position;

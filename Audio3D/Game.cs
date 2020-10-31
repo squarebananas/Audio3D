@@ -98,6 +98,8 @@ namespace Audio3D
             audioManager.Listener.Velocity = cameraVelocity;
 
             // Tell our game entities to move around and play sounds.
+            (cat as Cat).relativeVelocityTestCameraPosition = cameraPosition;
+            (cat as Cat).relativeVelocityTestCameraMatrix = Matrix.CreateWorld(Vector3.Zero, cameraForward, cameraUp);
             cat.Update(gameTime, audioManager);
             dog.Update(gameTime, audioManager);
 
@@ -152,10 +154,19 @@ namespace Audio3D
             currentGamePadState = GamePad.GetState(PlayerIndex.One);
 
             // Toggle Tone Test
+            // (The tone's pitch should increase when the cat approaches the camera and decrease when going further away)
             if ((currentKeyboardState.IsKeyDown(Keys.F1)) || (currentGamePadState.Buttons.A == ButtonState.Pressed))
                 (cat as Cat).toneTestActive = true;
             if ((currentKeyboardState.IsKeyDown(Keys.F2)) || (currentGamePadState.Buttons.B == ButtonState.Pressed))
                 (cat as Cat).toneTestActive = false;
+
+            // Toggle Relative Velocity Test
+            // (The cat will move with the camera at a fixed distance. As both velocities are the same the relative velocity will be zero.
+            // This means with the tone test active the pitch should remain unchanged when moving the camera forwards)
+            if ((currentKeyboardState.IsKeyDown(Keys.F3)) || (currentGamePadState.Buttons.X == ButtonState.Pressed))
+                (cat as Cat).relativeVelocityTestActive = true;
+            if ((currentKeyboardState.IsKeyDown(Keys.F4)) || (currentGamePadState.Buttons.Y == ButtonState.Pressed))
+                (cat as Cat).relativeVelocityTestActive = false;
 
             // Check for exit.
             if (currentKeyboardState.IsKeyDown(Keys.Escape) ||
